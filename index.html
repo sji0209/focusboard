@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Focusboard — New Tab</title>
+  <meta name="description" content="A calm, local-first new tab dashboard for dining, weather, links, calendar and tasks.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23eef0e6'/%3E%3Cpath d='M10 46 25 23l8 12 7-9 14 20Z' fill='%233c5947'/%3E%3Ccircle cx='46' cy='17' r='6' fill='%23e8b86a'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'] }, colors: { ink:'#090b10', panel:'#11151d', orange:'#f58a45' } } } };
+  </script>
+  <style>
+    :root{--bg:#b8c7a3;--card:#eef0e6;--ink:#273128;--line:rgba(39,49,40,.12);--muted:#667168;--accent:#3c5947;--landscape:url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=2400&q=90')}
+    *{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:#f4f5f7;overflow:hidden}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(180deg,rgba(4,7,9,.04),rgba(4,7,9,.17)),var(--landscape);background-size:cover;background-position:center;transform:scale(1.01)}
+    .glass{background:var(--card);color:var(--ink);border:0;box-shadow:0 10px 35px rgba(34,48,37,.14);backdrop-filter:none;-webkit-backdrop-filter:none}
+    .scrollbar{scrollbar-width:thin;scrollbar-color:#303744 transparent}.scrollbar::-webkit-scrollbar{width:5px}.scrollbar::-webkit-scrollbar-thumb{background:#303744;border-radius:99px}
+    button,input,select{font:inherit}.field{background:#dde2d6;color:#303b32;border:0;outline:none;transition:.2s}.field:focus{background:#d3dacd;box-shadow:0 0 0 1px rgba(48,67,53,.25)}
+    .icon-btn{transition:transform .18s,background .18s,color .18s}.icon-btn:hover{transform:translateY(-1px);background:rgba(39,49,40,.07);color:#172019}.icon-btn:active{transform:scale(.96)}
+    .meal-tab[aria-selected="true"]{background:#3c5947;color:#fff!important}.shortcut{background:transparent!important;transition:opacity .2s}.shortcut:hover{transform:none;background:transparent!important;opacity:.68}
+    .site-logo{object-fit:contain;filter:drop-shadow(0 2px 7px rgba(0,0,0,.22))}
+    .bg-orange{background:#3c5947!important;color:#fff!important}.text-orange{color:#3c5947!important}
+    .task-row{animation:rise .28s ease both}.task-row.done .task-title{text-decoration:line-through;color:#626a79}.task-row.done{opacity:.65}.task-row.removing{animation:leave .25s ease forwards}
+    @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes leave{to{opacity:0;transform:translateX(18px);height:0;margin:0;padding-top:0;padding-bottom:0}}
+    .modal{transition:opacity .2s}.modal-card{animation:pop .22s ease both}@keyframes pop{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:none}}
+    .search-shell{background:#eef0e6;color:var(--ink);border:0;box-shadow:0 10px 30px rgba(34,48,37,.14);backdrop-filter:none;-webkit-backdrop-filter:none}
+    .search-shell input{color:#273128!important}.search-shell input::placeholder{color:#788179!important}.search-shell svg,.search-shell span{color:#667168!important}
+    .dashboard .glass{border-radius:3px!important}
+    .dashboard [class*="rounded"]{border-radius:2px!important}
+    .dashboard .search-shell{border-radius:0!important}
+    .dashboard .task-row{background:transparent!important;border-bottom:1px solid rgba(39,49,40,.12);padding-left:0;padding-right:0}
+    .dashboard #menu-status,.dashboard #task-count{background:transparent!important;padding-left:0;padding-right:0}
+    .dashboard .quick-grid{gap:.15rem}
+    .dashboard [role="tablist"]{border:0;background:#dde2d6!important}
+    .dashboard #calendar-wrap{border-top:1px solid rgba(39,49,40,.1)}
+    .glass .text-slate-200,.glass .text-slate-300{color:#303b32!important}.glass .text-slate-400{color:#59655c!important}.glass .text-slate-500,.glass .text-slate-600,.glass .text-slate-700{color:#758078!important}.glass .text-white,.glass [class*="text-white"]{color:#273128!important}
+    .settings-trigger{background:#eef0e6;color:#344239!important;box-shadow:0 8px 24px rgba(34,48,37,.14)}
+    @media(max-width:1100px){body{overflow:auto}.dashboard{grid-template-columns:1fr!important;height:auto!important;max-width:720px!important}.column{height:auto!important;min-height:520px}.center-col{order:-1;min-height:0!important}.right-col{min-height:700px}}
+    @media(max-width:640px){.dashboard{padding:16px!important;gap:20px!important}.quick-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}.clock{font-size:3.75rem!important}}
+  </style>
+</head>
+<body class="font-sans antialiased selection:bg-orange/30">
+  <main class="dashboard relative z-10 mx-auto grid h-screen max-w-[1260px] grid-cols-[.9fr_1.18fr_.9fr] items-center gap-7 p-7 xl:gap-9 xl:p-10">
+    <!-- Dining -->
+    <section class="column glass flex h-[64vh] min-h-0 flex-col rounded-[18px] p-4" aria-labelledby="dining-title">
+      <header class="flex items-start justify-between gap-3">
+        <h1 id="dining-title" class="text-sm font-medium tracking-tight">Dining</h1>
+        <button id="refresh-menu" class="icon-btn rounded-xl p-2 text-slate-400" title="Refresh menu" aria-label="Refresh menu"><i data-lucide="refresh-cw" class="h-4 w-4"></i></button>
+      </header>
+      <div class="mt-4 grid grid-cols-3 gap-1 rounded-xl bg-black/20 p-1" role="tablist" aria-label="Meal">
+        <button class="meal-tab rounded-lg px-2 py-2 text-xs font-medium text-slate-400" data-meal="Breakfast" aria-selected="false">Breakfast</button>
+        <button class="meal-tab rounded-lg px-2 py-2 text-xs font-medium text-slate-400" data-meal="Lunch" aria-selected="true">Lunch</button>
+        <button class="meal-tab rounded-lg px-2 py-2 text-xs font-medium text-slate-400" data-meal="Dinner" aria-selected="false">Dinner</button>
+      </div>
+      <div class="mt-3 flex items-center gap-2">
+        <div class="relative flex-1"><i data-lucide="map-pin" class="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"></i><select id="hall-select" class="field w-full appearance-none rounded-xl py-2.5 pl-9 pr-8 text-sm text-slate-200"><option>Choi (Huo/Yeh)</option><option>CJL</option><option selected>Whitman</option><option>Ro / Ma</option><option>Forbes</option><option>Grad</option></select><i data-lucide="chevron-down" class="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500"></i></div>
+        <span id="menu-status" class="rounded-full bg-white/[.06] px-2.5 py-1.5 text-[10px] font-medium text-slate-400">Loading</span>
+      </div>
+      <div class="my-3"></div>
+      <div id="menu-list" class="scrollbar min-h-0 flex-1 space-y-5 overflow-y-auto pr-2" aria-live="polite"></div>
+      <p class="mt-3 flex items-center gap-1.5 text-[10px] text-slate-400"><i data-lucide="info" class="h-3 w-3"></i><span id="menu-note">Connecting to TigerMenus…</span></p>
+    </section>
+
+    <!-- Center -->
+    <section class="center-col column flex min-h-0 flex-col items-center gap-5">
+      <div class="relative w-full text-center text-shadow">
+        <button id="settings-btn" class="settings-trigger icon-btn fixed right-6 top-6 z-40 flex items-center gap-2 rounded-xl px-3 py-2 text-xs text-white/75" aria-label="Open settings"><i data-lucide="settings-2" class="h-4 w-4"></i><span>Settings</span></button>
+        <div class="flex items-baseline justify-center gap-2 drop-shadow-lg"><time id="clock" class="clock text-[5.2rem] font-medium leading-none tracking-[-.075em] tabular-nums">12:00</time><span id="seconds" class="w-6 text-left text-sm tabular-nums text-white/70">00</span></div>
+        <p id="date" class="mt-2 text-sm text-white/75 drop-shadow"></p>
+        <p id="greeting" class="sr-only">Good afternoon</p>
+        <button id="seconds-toggle" class="mt-2 text-[10px] text-white/45 transition hover:text-white/80">Hide seconds</button>
+      </div>
+
+      <form id="google-search" action="https://www.google.com/search" method="get" class="search-shell flex w-full items-center gap-3 rounded-2xl px-4 py-3">
+        <i data-lucide="search" class="h-4 w-4 shrink-0 text-white/55"></i>
+        <input name="q" autocomplete="off" class="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/45" placeholder="Search Google">
+        <span class="text-[10px] text-white/35">Enter</span>
+      </form>
+
+      <div class="glass w-fit max-w-full rounded-[18px] p-3">
+        <header class="mb-2 flex items-center justify-end"><button id="add-link" class="icon-btn flex items-center gap-1 rounded-lg px-2 py-1.5 text-[10px] text-slate-300"><i data-lucide="plus" class="h-3 w-3"></i>Add</button></header>
+        <div id="quicklinks" class="quick-grid grid grid-cols-4 gap-2"></div>
+      </div>
+
+      <div class="glass w-full rounded-[18px] px-4 py-3">
+        <div class="flex items-center justify-between gap-5">
+          <div class="min-w-0"><div class="flex items-center gap-2"><i id="weather-icon" data-lucide="cloud-sun" class="h-4 w-4 text-white/70"></i><p id="weather-location" class="truncate text-[11px] text-slate-300">Princeton, NJ</p></div><div class="mt-1 flex items-baseline gap-3"><span id="temperature" class="text-3xl font-medium tracking-[-.06em]">--°</span><span id="condition" class="text-[11px] text-slate-300">Loading weather…</span></div></div>
+          <div id="forecast" class="grid shrink-0 grid-cols-3 gap-2 text-center"></div>
+        </div>
+        <button id="locate-btn" class="mt-2 flex items-center gap-1 text-[9px] text-slate-500 transition hover:text-slate-200"><i data-lucide="navigation" class="h-3 w-3"></i>Use my location</button>
+      </div>
+    </section>
+
+    <!-- Calendar & Tasks -->
+    <section class="right-col column flex h-[64vh] min-h-0 flex-col gap-3">
+      <div class="glass flex h-[42%] min-h-[220px] flex-col overflow-hidden rounded-[18px] p-4">
+        <header class="flex items-center justify-between"><h2 class="text-sm font-medium">Calendar</h2><button id="calendar-settings" class="icon-btn rounded-xl p-2 text-slate-400" aria-label="Calendar settings"><i data-lucide="external-link" class="h-4 w-4"></i></button></header>
+        <div id="calendar-wrap" class="mt-3 min-h-0 flex-1 overflow-hidden rounded-2xl bg-black/20"></div>
+      </div>
+      <div class="glass flex min-h-0 flex-1 flex-col rounded-[18px] p-4">
+        <header class="flex items-center justify-between"><h2 class="text-sm font-medium">Tasks</h2><span id="task-count" class="rounded-full bg-white/[.05] px-2.5 py-1 text-[10px] text-slate-300">0 left</span></header>
+        <form id="task-form" class="mt-3 flex gap-2"><input id="task-input" class="field min-w-0 flex-1 rounded-xl px-3 py-2.5 text-sm placeholder:text-slate-600" maxlength="100" placeholder="Add a task…" required><select id="priority" class="field rounded-xl px-2 text-xs text-slate-400"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select><button class="rounded-xl bg-orange px-3 text-ink transition hover:brightness-110 active:scale-95" aria-label="Add task"><i data-lucide="plus" class="h-4 w-4"></i></button></form>
+        <div id="task-list" class="scrollbar mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-1"></div>
+        <button id="clear-completed" class="mt-2 self-start text-[10px] text-slate-600 transition hover:text-red-300">Clear completed</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Reusable modal -->
+  <div id="modal" class="modal fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card glass w-full max-w-md rounded-[20px] p-5">
+      <div class="flex items-center justify-between"><h2 id="modal-title" class="text-lg font-semibold"></h2><button id="modal-close" class="icon-btn rounded-lg p-2 text-slate-500" aria-label="Close"><i data-lucide="x" class="h-4 w-4"></i></button></div>
+      <form id="modal-form" class="mt-5 space-y-4"></form>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script>
+  (() => {
+    'use strict';
+    const $ = (s, root=document) => root.querySelector(s), $$ = (s, root=document) => [...root.querySelectorAll(s)];
+    const store = { get(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}}, set(k,v){localStorage.setItem(k,JSON.stringify(v))} };
+    const escapeHTML = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    lucide.createIcons();
+
+    // Clock
+    let showSeconds = store.get('focusboard.showSeconds', true);
+    function tick(){const now=new Date(),h=now.getHours();$('#clock').textContent=now.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});$('#seconds').textContent=showSeconds?String(now.getSeconds()).padStart(2,'0'):'';$('#date').textContent=now.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'});$('#greeting').textContent=`Good ${h<12?'morning':h<18?'afternoon':'evening'}`;}
+    $('#seconds-toggle').onclick=()=>{showSeconds=!showSeconds;store.set('focusboard.showSeconds',showSeconds);$('#seconds-toggle').textContent=showSeconds?'Hide seconds':'Show seconds';tick()};
+    $('#seconds-toggle').textContent=showSeconds?'Hide seconds':'Show seconds';tick();setInterval(tick,1000);
+
+    // Live TigerMenus integration. Their public site returns HTML rather than JSON.
+    const sampleMenus={
+      Breakfast:[{station:'Morning favorites',items:[['Cage-Free Scrambled Eggs','V'],['Applewood Smoked Bacon',''],['Rosemary Breakfast Potatoes','VG']]},{station:'Bakery & grains',items:[['Buttermilk Pancakes','V'],['Steel-Cut Oatmeal','VG'],['Fresh Seasonal Fruit','VG']]}],
+      Lunch:[{station:'Chef’s table',items:[['Herb-Roasted Chicken','GF'],['Wild Rice Pilaf','VG'],['Maple-Glazed Carrots','VG']]},{station:'Market grill',items:[['Black Bean Burger','VG'],['Crispy Shoestring Fries','VG']]},{station:'Soup & salad',items:[['Roasted Tomato Bisque','V'],['Harvest Kale Salad','VG · GF']]}],
+      Dinner:[{station:'Main kitchen',items:[['Miso-Glazed Salmon','GF'],['Ginger Jasmine Rice','VG'],['Sesame Broccolini','VG · GF']]},{station:'Comfort',items:[['Mushroom Rigatoni','V'],['Garlic Focaccia','VG']]},{station:'Dessert',items:[['Warm Apple Crisp','V'],['Vanilla Oat Soft Serve','VG']]}]
+    };
+    let activeMeal=store.get('focusboard.meal','Lunch');
+    function renderMenu(groups,source='Sample menu'){$('#menu-status').textContent=source;$('#menu-list').innerHTML=groups.map(g=>`<section><h3 class="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[.18em] text-slate-500"><span class="h-px w-4 bg-orange/50"></span>${escapeHTML(g.station)}</h3><div class="space-y-1">${g.items.map(i=>{const name=Array.isArray(i)?i[0]:(i.name||i.title),tag=Array.isArray(i)?i[1]:(i.tags||i.dietary||'');return `<div class="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition hover:bg-white/[.045]"><span class="text-sm text-slate-200">${escapeHTML(name)}</span>${tag?`<span class="shrink-0 rounded-md bg-emerald-400/[.08] px-1.5 py-1 text-[9px] font-semibold text-emerald-300">${escapeHTML(Array.isArray(tag)?tag.join(' · '):tag)}</span>`:''}</div>`}).join('')}</div></section>`).join('');}
+    function normalizeMenu(data){const raw=data.stations||data.categories||data.menu||data;if(!Array.isArray(raw))throw Error('Unexpected JSON shape');return raw.map((g,i)=>({station:g.station||g.name||g.category||`Station ${i+1}`,items:g.items||g.foods||g.menuItems||[]})).filter(g=>g.items.length)}
+    function parseTigerMenu(html,hall){const doc=new DOMParser().parseFromString(html,'text/html');const sections=[...doc.querySelectorAll('.dining-hall')];const wanted=hall.toLowerCase().replace(/\s+/g,' ');const section=sections.find(s=>{const heading=s.querySelector('h2');return heading&&(heading.textContent.trim().toLowerCase().replace(/\s+/g,' ')===wanted||heading.dataset.hallName?.toLowerCase()===wanted.split(' ')[0])});if(!section)throw Error('Dining hall was not found');const groups=[];let current=null;[...section.children].forEach(el=>{if(el.matches('.menu-station')){current={station:el.textContent.trim(),items:[]};groups.push(current)}else if(el.matches('.menu-dish')&&current){current.items.push({name:el.textContent.trim()})}});return groups.filter(g=>g.items.length)}
+    async function fetchText(url){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);try{const response=await fetch(url,{signal:controller.signal,cache:'no-store'});if(!response.ok)throw Error(`HTTP ${response.status}`);const text=await response.text();if(!text.includes('dining-hall'))throw Error('Invalid menu page');return text}finally{clearTimeout(timer)}}
+    async function loadMenu(){const hall=$('#hall-select').value,custom=store.get('focusboard.menuEndpoint','');$('#menu-status').textContent='Loading…';$('#menu-list').innerHTML='<div class="flex h-32 items-center justify-center text-xs text-slate-400">Loading today’s menu…</div>';$('#menu-note').textContent='Fetching today’s menu from TigerMenus.';try{let groups;if(custom){const date=new Date().toISOString().slice(0,10),url=custom.replaceAll('{hall}',encodeURIComponent(hall)).replaceAll('{meal}',encodeURIComponent(activeMeal)).replaceAll('{date}',date);const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error(`HTTP ${r.status}`);groups=normalizeMenu(await r.json())}else{const url=`https://menus.tigerapps.org/${activeMeal.toLowerCase()}/0`;groups=parseTigerMenu(await fetchText(url),hall)}if(!groups.length){$('#menu-list').innerHTML='<div class="flex h-32 items-center justify-center text-center text-xs text-slate-400">No menu is posted for this hall and meal.</div>';$('#menu-status').textContent='No data';$('#menu-note').textContent=`TigerMenus has no ${activeMeal.toLowerCase()} items for ${hall} today.`;return}renderMenu(groups,'Live');$('#menu-note').textContent=`Today’s ${activeMeal.toLowerCase()} at ${hall} · TigerMenus`;}catch(error){renderMenu(sampleMenus[activeMeal],'Offline');$('#menu-note').textContent='TigerMenus could not be reached. Showing offline fallback items.';console.warn('TigerMenus fetch failed:',error)}}
+    $$('.meal-tab').forEach(b=>{b.setAttribute('aria-selected',String(b.dataset.meal===activeMeal));b.onclick=()=>{$$('.meal-tab').forEach(x=>x.setAttribute('aria-selected','false'));b.setAttribute('aria-selected','true');activeMeal=b.dataset.meal;store.set('focusboard.meal',activeMeal);loadMenu()}});
+    const savedHall=store.get('focusboard.hall','Whitman'),hallOptions=[...$('#hall-select').options].map(o=>o.value);$('#hall-select').value=hallOptions.includes(savedHall)?savedHall:'Whitman';$('#hall-select').onchange=e=>{store.set('focusboard.hall',e.target.value);loadMenu()};$('#refresh-menu').onclick=loadMenu;loadMenu();
+
+    // Quicklinks
+    const defaults=[{title:'Canvas',url:'https://canvas.princeton.edu'},{title:'Gmail',url:'https://mail.google.com'},{title:'GitHub',url:'https://github.com'},{title:'Calendar',url:'https://calendar.google.com'}];
+    let links=store.get('focusboard.links',defaults).slice(0,4);
+    function iconUrls(url){try{const u=new URL(url),domain=u.hostname;return {direct:u.origin+'/favicon.ico',fallback:`https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`}}catch{return {direct:'',fallback:''}}}
+    function renderLinks(){const visible=links.slice(0,4);$('#quicklinks').innerHTML=visible.map((l,i)=>{const icons=iconUrls(l.url);return `<div class="shortcut group relative w-16 rounded-xl bg-white/[.045] px-2 py-2.5 text-center"><a href="${escapeHTML(l.url)}" class="block" aria-label="Open ${escapeHTML(l.title)}"><span class="mx-auto mb-1.5 inline-flex h-8 w-8 items-center justify-center"><img class="site-logo h-5 w-5" src="${escapeHTML(icons.direct)}" data-fallback="${escapeHTML(icons.fallback)}" alt="" referrerpolicy="no-referrer"></span><p class="truncate text-[10px] text-slate-200">${escapeHTML(l.title)}</p></a><button data-edit-link="${i}" class="absolute right-0.5 top-0.5 rounded-lg p-1 text-slate-400 opacity-0 transition hover:bg-white/[.08] hover:text-white group-hover:opacity-100" aria-label="Edit ${escapeHTML(l.title)}"><i data-lucide="pencil" class="h-2.5 w-2.5"></i></button></div>`}).join('');$('#add-link').classList.toggle('hidden',links.length>=4);$$('.site-logo').forEach(img=>img.onerror=()=>{if(img.dataset.fallback&&img.src!==img.dataset.fallback){img.src=img.dataset.fallback}else{img.style.opacity='.35'}});lucide.createIcons();$$('[data-edit-link]').forEach(b=>b.onclick=e=>{e.preventDefault();openLinkModal(+b.dataset.editLink)})}
+    renderLinks();$('#add-link').onclick=()=>openLinkModal();
+
+    // Modal
+    const modal=$('#modal'),form=$('#modal-form');let modalMode='';
+    function openModal(title,html,mode){$('#modal-title').textContent=title;form.innerHTML=html;modalMode=mode;modal.classList.remove('hidden');modal.classList.add('flex');setTimeout(()=>form.querySelector('input')?.focus(),50);lucide.createIcons()}
+    function closeModal(){modal.classList.add('hidden');modal.classList.remove('flex')};$('#modal-close').onclick=closeModal;modal.onclick=e=>{if(e.target===modal)closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+    function openLinkModal(index=null){const l=index===null?{title:'',url:'https://'}:links[index];openModal(index===null?'Add quicklink':'Edit quicklink',`<input type="hidden" name="index" value="${index??''}"><label class="block text-xs text-slate-400">Title<input name="title" maxlength="30" required value="${escapeHTML(l.title)}" class="field mt-2 w-full rounded-xl px-3 py-2.5 text-sm text-white"></label><label class="block text-xs text-slate-400">URL<input name="url" type="url" required value="${escapeHTML(l.url)}" class="field mt-2 w-full rounded-xl px-3 py-2.5 text-sm text-white"></label><p class="text-[11px] text-slate-500">The logo is picked up automatically from the website.</p><div class="flex gap-2 pt-1">${index!==null?'<button type="button" id="delete-link" class="rounded-xl px-3 py-2.5 text-xs text-red-300 hover:bg-red-400/10">Delete</button>':''}<button class="ml-auto rounded-xl bg-orange px-4 py-2.5 text-xs font-semibold text-ink">Save link</button></div>`,'link');if(index!==null)$('#delete-link').onclick=()=>{links.splice(index,1);store.set('focusboard.links',links);renderLinks();closeModal()}}
+    function openSettings(){openModal('Dashboard settings',`<label class="block text-xs text-slate-400">Landscape image URL <span class="text-slate-600">(leave blank for default)</span><input name="background" value="${escapeHTML(store.get('focusboard.background',''))}" class="field mt-2 w-full rounded-xl px-3 py-2.5 text-sm text-white" placeholder="https://…/your-landscape.jpg"></label><label class="block text-xs text-slate-400">Custom menu JSON endpoint <span class="text-slate-600">(advanced override)</span><input name="endpoint" value="${escapeHTML(store.get('focusboard.menuEndpoint',''))}" class="field mt-2 w-full rounded-xl px-3 py-2.5 text-sm text-white" placeholder="Leave blank to use live TigerMenus"></label><p class="rounded-xl bg-black/20 p-3 text-[11px] leading-relaxed text-slate-500">TigerMenus is connected automatically. Only use this field if you run your own JSON proxy.</p><label class="block text-xs text-slate-400">Google Calendar embed URL <span class="text-slate-600">(optional)</span><input name="calendar" value="${escapeHTML(store.get('focusboard.calendarUrl',''))}" class="field mt-2 w-full rounded-xl px-3 py-2.5 text-sm text-white" placeholder="https://calendar.google.com/calendar/embed?... "></label><button class="w-full rounded-xl bg-orange py-2.5 text-xs font-semibold text-ink">Save settings</button>`,'settings')}
+    $('#settings-btn').onclick=openSettings;$('#calendar-settings').onclick=openSettings;
+    function applyBackground(url){if(!url){document.documentElement.style.removeProperty('--landscape');return}const safe=String(url).replace(/["\\\n\r]/g,'');document.documentElement.style.setProperty('--landscape',`url("${safe}")`)}
+    applyBackground(store.get('focusboard.background',''));
+    form.onsubmit=e=>{e.preventDefault();const d=Object.fromEntries(new FormData(form));if(modalMode==='link'){const item={title:d.title.trim(),url:d.url.trim()};d.index===''?links.push(item):links[+d.index]=item;store.set('focusboard.links',links);renderLinks()}else{store.set('focusboard.background',d.background.trim());store.set('focusboard.menuEndpoint',d.endpoint.trim());store.set('focusboard.calendarUrl',d.calendar.trim());applyBackground(d.background.trim());renderCalendar();loadMenu()}closeModal()};
+
+    // Weather (Open-Meteo, location stored only on device)
+    const codes={0:['Clear sky','sun'],1:['Mostly clear','sun'],2:['Partly cloudy','cloud-sun'],3:['Overcast','cloud'],45:['Foggy','cloud-fog'],48:['Rime fog','cloud-fog'],51:['Light drizzle','cloud-drizzle'],53:['Drizzle','cloud-drizzle'],55:['Heavy drizzle','cloud-rain'],61:['Light rain','cloud-rain'],63:['Rain','cloud-rain'],65:['Heavy rain','cloud-rain'],71:['Light snow','cloud-snow'],73:['Snow','cloud-snow'],75:['Heavy snow','cloud-snow'],80:['Rain showers','cloud-rain'],81:['Rain showers','cloud-rain'],82:['Heavy showers','cloud-rain'],95:['Thunderstorm','cloud-lightning']};
+    async function weather(lat=40.3431,lon=-74.6551,label='Princeton, NJ'){try{const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto&forecast_days=4`;const r=await fetch(u);if(!r.ok)throw Error();const d=await r.json(),c=codes[d.current.weather_code]||['Mixed conditions','cloud'];$('#temperature').textContent=Math.round(d.current.temperature_2m)+'°';$('#condition').textContent=c[0];$('#weather-location').textContent=label;$('#weather-icon').setAttribute('data-lucide',c[1]);$('#forecast').innerHTML=d.daily.time.slice(1,4).map((day,i)=>`<div class="px-2 py-1 text-center"><p class="text-[8px] uppercase text-slate-400">${new Date(day+'T12:00').toLocaleDateString([],{weekday:'short'})}</p><p class="mt-1 text-[11px] font-medium">${Math.round(d.daily.temperature_2m_max[i+1])}°</p><p class="text-[8px] text-slate-500">${Math.round(d.daily.temperature_2m_min[i+1])}°</p></div>`).join('');lucide.createIcons()}catch{$('#condition').textContent='Weather unavailable'}}
+    const savedLoc=store.get('focusboard.location',null);savedLoc?weather(savedLoc.lat,savedLoc.lon,savedLoc.label):weather();
+    $('#locate-btn').onclick=()=>{if(!navigator.geolocation)return;$('#locate-btn').textContent='Locating…';navigator.geolocation.getCurrentPosition(p=>{const loc={lat:p.coords.latitude,lon:p.coords.longitude,label:'Current location'};store.set('focusboard.location',loc);weather(loc.lat,loc.lon,loc.label);$('#locate-btn').innerHTML='<i data-lucide="navigation" class="h-3 w-3"></i>Location updated';lucide.createIcons()},()=>{$('#locate-btn').textContent='Location permission denied'})};
+
+    // Calendar
+    function renderCalendar(){const url=store.get('focusboard.calendarUrl','');$('#calendar-wrap').innerHTML=url?`<iframe title="Google Calendar" src="${escapeHTML(url)}" class="h-full w-full border-0" loading="lazy"></iframe>`:`<div class="flex h-full flex-col items-center justify-center p-5 text-center"><span class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-300"><i data-lucide="calendar-plus" class="h-5 w-5"></i></span><p class="text-sm font-medium">Connect your calendar</p><p class="mt-1 max-w-[220px] text-[11px] leading-relaxed text-slate-500">Paste a Google Calendar embed URL in Settings to see your schedule here.</p><button id="connect-calendar" class="mt-3 rounded-xl bg-white/[.06] px-3 py-2 text-xs text-slate-300 hover:bg-white/[.09]">Add embed URL</button></div>`;lucide.createIcons();$('#connect-calendar')?.addEventListener('click',openSettings)}renderCalendar();
+
+    // Tasks
+    let tasks=store.get('focusboard.tasks',[{id:1,title:'Review tomorrow’s schedule',priority:'medium',done:false},{id:2,title:'Submit problem set',priority:'high',done:false}]);
+    const priorityStyle={low:'text-sky-300 bg-sky-400/10',medium:'text-amber-300 bg-amber-400/10',high:'text-red-300 bg-red-400/10'};
+    function saveTasks(){store.set('focusboard.tasks',tasks)}
+    function renderTasks(){$('#task-list').innerHTML=tasks.length?tasks.map(t=>`<div class="task-row group flex items-center gap-2 rounded-xl bg-white/[.045] px-3 py-2.5 ${t.done?'done':''}" data-id="${t.id}"><button class="task-check flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${t.done?'bg-emerald-400 text-ink':'bg-white/[.09] hover:bg-white/[.15]'}" aria-label="${t.done?'Mark incomplete':'Mark complete'}">${t.done?'<i data-lucide="check" class="h-3 w-3"></i>':''}</button><span class="task-title min-w-0 flex-1 truncate text-xs text-slate-200">${escapeHTML(t.title)}</span><span class="rounded-md px-1.5 py-1 text-[8px] font-semibold uppercase ${priorityStyle[t.priority]}">${t.priority}</span><button class="task-delete rounded-md p-1 text-slate-500 opacity-0 transition hover:text-red-300 group-hover:opacity-100" aria-label="Delete task"><i data-lucide="trash-2" class="h-3 w-3"></i></button></div>`).join(''):`<div class="flex h-full min-h-24 flex-col items-center justify-center text-center"><i data-lucide="circle-check-big" class="h-6 w-6 text-emerald-400/60"></i><p class="mt-2 text-xs text-slate-400">All clear. Enjoy the momentum.</p></div>`;const left=tasks.filter(t=>!t.done).length;$('#task-count').textContent=`${left} left`;lucide.createIcons();$$('.task-row').forEach(row=>{const id=+row.dataset.id;$('.task-check',row).onclick=()=>{const t=tasks.find(x=>x.id===id);t.done=!t.done;saveTasks();renderTasks()};$('.task-delete',row).onclick=()=>{row.classList.add('removing');setTimeout(()=>{tasks=tasks.filter(x=>x.id!==id);saveTasks();renderTasks()},220)}})}
+    $('#task-form').onsubmit=e=>{e.preventDefault();const input=$('#task-input');tasks.unshift({id:Date.now(),title:input.value.trim(),priority:$('#priority').value,done:false});input.value='';saveTasks();renderTasks()};
+    $('#clear-completed').onclick=()=>{tasks=tasks.filter(t=>!t.done);saveTasks();renderTasks()};renderTasks();
+  })();
+  </script>
+</body>
+</html>
