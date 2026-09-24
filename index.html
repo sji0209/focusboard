@@ -37,7 +37,7 @@
     .dashboard #menu-status,.dashboard #task-count{background:transparent!important;padding-left:0;padding-right:0}
     .dashboard .quick-grid{gap:.15rem}
     .dashboard [role="tablist"]{border:0;background:#dde2d6!important}
-    .dashboard #calendar-wrap{border-top:1px solid rgba(39,49,40,.1)}
+    .dashboard #calendar-wrap{border-top:1px solid rgba(39,49,40,.1);background:#f4f6ef}
     .glass .text-slate-200,.glass .text-slate-300{color:#303b32!important}.glass .text-slate-400{color:#59655c!important}.glass .text-slate-500,.glass .text-slate-600,.glass .text-slate-700{color:#758078!important}.glass .text-white,.glass [class*="text-white"]{color:#273128!important}
     .settings-trigger{background:#eef0e6;color:#344239!important;box-shadow:0 8px 24px rgba(34,48,37,.14)}
     @media(max-width:1100px){body{overflow:auto}.dashboard{grid-template-columns:1fr!important;height:auto!important;max-width:720px!important}.column{height:auto!important;min-height:520px}.center-col{order:-1;min-height:0!important}.right-col{min-height:700px}}
@@ -45,7 +45,7 @@
   </style>
 </head>
 <body class="font-sans antialiased selection:bg-orange/30">
-  <main class="dashboard relative z-10 mx-auto grid h-screen max-w-[1260px] grid-cols-[.9fr_1.18fr_.9fr] items-center gap-7 p-7 xl:gap-9 xl:p-10">
+  <main class="dashboard relative z-10 mx-auto grid h-screen max-w-[1340px] grid-cols-[.88fr_1.08fr_1.04fr] items-center gap-7 p-7 xl:gap-9 xl:p-10">
     <!-- Dining -->
     <section class="column glass flex h-[64vh] min-h-0 flex-col rounded-[18px] p-4" aria-labelledby="dining-title">
       <header class="flex items-start justify-between gap-3">
@@ -97,8 +97,8 @@
     </section>
 
     <!-- Calendar & Tasks -->
-    <section class="right-col column flex h-[64vh] min-h-0 flex-col gap-3">
-      <div class="glass flex h-[42%] min-h-[220px] flex-col overflow-hidden rounded-[18px] p-4">
+    <section class="right-col column flex h-[68vh] min-h-0 flex-col gap-3">
+      <div class="glass flex h-[56%] min-h-[300px] flex-col overflow-hidden rounded-[18px] p-4">
         <header class="flex items-center justify-between"><h2 class="text-sm font-medium">Calendar</h2><button id="calendar-settings" class="icon-btn rounded-xl p-2 text-slate-400" aria-label="Calendar settings"><i data-lucide="external-link" class="h-4 w-4"></i></button></header>
         <div id="calendar-wrap" class="mt-3 min-h-0 flex-1 overflow-hidden rounded-2xl bg-black/20"></div>
       </div>
@@ -174,7 +174,8 @@
     $('#locate-btn').onclick=()=>{if(!navigator.geolocation)return;$('#locate-btn').textContent='Locating…';navigator.geolocation.getCurrentPosition(p=>{const loc={lat:p.coords.latitude,lon:p.coords.longitude,label:'Current location'};store.set('focusboard.location',loc);weather(loc.lat,loc.lon,loc.label);$('#locate-btn').innerHTML='<i data-lucide="navigation" class="h-3 w-3"></i>Location updated';lucide.createIcons()},()=>{$('#locate-btn').textContent='Location permission denied'})};
 
     // Calendar
-    function renderCalendar(){const url=store.get('focusboard.calendarUrl','');$('#calendar-wrap').innerHTML=url?`<iframe title="Google Calendar" src="${escapeHTML(url)}" class="h-full w-full border-0" loading="lazy"></iframe>`:`<div class="flex h-full flex-col items-center justify-center p-5 text-center"><span class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-300"><i data-lucide="calendar-plus" class="h-5 w-5"></i></span><p class="text-sm font-medium">Connect your calendar</p><p class="mt-1 max-w-[220px] text-[11px] leading-relaxed text-slate-500">Paste a Google Calendar embed URL in Settings to see your schedule here.</p><button id="connect-calendar" class="mt-3 rounded-xl bg-white/[.06] px-3 py-2 text-xs text-slate-300 hover:bg-white/[.09]">Add embed URL</button></div>`;lucide.createIcons();$('#connect-calendar')?.addEventListener('click',openSettings)}renderCalendar();
+    function calendarEmbedUrl(raw){try{const url=new URL(raw);if(!url.hostname.endsWith('calendar.google.com'))return raw;url.searchParams.set('mode','AGENDA');url.searchParams.set('showTitle','0');url.searchParams.set('showPrint','0');url.searchParams.set('showTabs','0');url.searchParams.set('showCalendars','0');url.searchParams.set('showTz','0');url.searchParams.set('wkst','1');return url.toString()}catch{return raw}}
+    function renderCalendar(){const savedUrl=store.get('focusboard.calendarUrl',''),url=savedUrl?calendarEmbedUrl(savedUrl):'';$('#calendar-wrap').innerHTML=url?`<iframe title="Google Calendar agenda" src="${escapeHTML(url)}" class="h-full w-full border-0" loading="eager"></iframe>`:`<div class="flex h-full flex-col items-center justify-center p-5 text-center"><span class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-violet-400/10 text-violet-300"><i data-lucide="calendar-plus" class="h-5 w-5"></i></span><p class="text-sm font-medium">Connect your calendar</p><p class="mt-1 max-w-[220px] text-[11px] leading-relaxed text-slate-500">Paste a Google Calendar embed URL in Settings to see your schedule here.</p><button id="connect-calendar" class="mt-3 rounded-xl bg-white/[.06] px-3 py-2 text-xs text-slate-300 hover:bg-white/[.09]">Add embed URL</button></div>`;lucide.createIcons();$('#connect-calendar')?.addEventListener('click',openSettings)}renderCalendar();
 
     // Tasks
     let tasks=store.get('focusboard.tasks',[{id:1,title:'Review tomorrow’s schedule',priority:'medium',done:false},{id:2,title:'Submit problem set',priority:'high',done:false}]);
